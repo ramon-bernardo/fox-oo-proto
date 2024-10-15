@@ -33,12 +33,10 @@ impl Entity for HouseTile {
 }
 
 impl EntityCast for HouseTile {
-    /// Attempts to cast the house tile as a generic tile.
     fn as_tile(&self) -> Option<&dyn Tile> {
         Some(self)
     }
 
-    /// Attempts to cast the house tile as a mutable reference to a generic tile.
     fn as_tile_mut(&mut self) -> Option<&mut dyn Tile> {
         Some(self)
     }
@@ -47,12 +45,10 @@ impl EntityCast for HouseTile {
 impl Tile for HouseTile {}
 
 impl TileCast for HouseTile {
-    /// Attempts to cast the house tile as a `HouseTile`.
     fn as_house_tile(&self) -> Option<&HouseTile> {
         Some(self)
     }
 
-    /// Attempts to cast the house tile as a mutable reference to a `HouseTile`.
     fn as_house_tile_mut(&mut self) -> Option<&mut HouseTile> {
         Some(self)
     }
