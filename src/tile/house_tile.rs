@@ -1,3 +1,5 @@
+use rune::{Any, Module};
+
 use crate::{
     entity::{Entity, EntityCast},
     position::Position,
@@ -6,9 +8,11 @@ use crate::{
 use super::{Tile, TileCast};
 
 /// The `HouseTile` struct represents a tile in the game that has a specific position.
+#[derive(Any, Debug)]
 pub struct HouseTile {
     /// The position of the house tile in the world.
-    position: Position,
+    #[rune(get, set)]
+    pub position: Position,
 }
 
 impl HouseTile {
@@ -52,4 +56,10 @@ impl TileCast for HouseTile {
     fn as_house_tile_mut(&mut self) -> Option<&mut HouseTile> {
         Some(self)
     }
+}
+
+pub fn house_tile_module() -> anyhow::Result<Module> {
+    let mut module = Module::new();
+    module.ty::<HouseTile>()?;
+    Ok(module)
 }

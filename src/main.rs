@@ -1,5 +1,9 @@
+use std::sync::Arc;
+
 use entity::*;
 use position::*;
+use rune::termcolor::{ColorChoice, StandardStream};
+use rune::{Diagnostics, Vm};
 use tile::house_tile::*;
 use tile::*;
 
@@ -7,7 +11,48 @@ mod entity;
 mod position;
 mod tile;
 
-fn main() {
+fn main() -> anyhow::Result<()> {
+    let mut context = rune_modules::default_context()?;
+    context.install(house_tile_module()?)?;
+    context.install(position_module()?)?;
+
+    let mut sources = rune::sources! {
+        entry => {
+            pub fn main(tile) {
+                dbg!(tile.position.x);
+                tile.position.x = 2;
+                dbg!(tile.position.x);
+            }
+        }
+    };
+
+    let mut diagnostics = Diagnostics::new();
+
+    let result = rune::prepare(&mut sources)
+        .with_context(&context)
+        .with_diagnostics(&mut diagnostics)
+        .build();
+
+    if !diagnostics.is_empty() {
+        let mut writer = StandardStream::stderr(ColorChoice::Always);
+        diagnostics.emit(&mut writer, &sources)?;
+    }
+
+    let runtime = context.runtime()?;
+    let unit = result?;
+
+    let runtime = Arc::new(runtime);
+    let mut vm = Vm::new(runtime, Arc::new(unit));
+
+    // Create a new position.
+    let initial_position = Position { x: 10, y: 20, z: 5 };
+    // Create a new HouseTile with the initial position.
+    let mut house_tile = HouseTile::new(&initial_position);
+    vm.call(["main"], (&mut house_tile,))?;
+    Ok(())
+}
+
+fn main2() {
     // Create a new position.
     let initial_position = Position { x: 10, y: 20, z: 5 };
 
